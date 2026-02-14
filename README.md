@@ -1,17 +1,23 @@
-# hercare_app
+# HerCare App (Frontend)
 
-A new Flutter project.
+Flutter frontend for the HerCare women's health tracking app.
 
-## Getting Started
+## Web Deployment (GitHub Pages)
+This app is configured to automatically deploy to GitHub Pages using GitHub Actions.
 
-This project is a starting point for a Flutter application.
+### How to Deploy
+1. Create a repository named `hercare-app` on GitHub.
+2. Push this code to the `main` branch.
+3. The GitHub Action will automatically:
+   - Build the Flutter web app
+   - Deploy it to the `gh-pages` branch
+   - Your site will be live at `https://<YOUR_USERNAME>.github.io/hercare-app/`
 
-A few resources to get you started if this is your first Flutter project:
+### Configuration
+- Base URL for backend is configured in `lib/services/api_service.dart`.
+- GitHub Action workflow is in `.github/workflows/deploy.yml`.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Local Development
+```bash
+flutter run -d chrome
+```
