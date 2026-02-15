@@ -41,6 +41,19 @@ dependencies:
   hive_flutter: ^1.1.0
   connectivity_plus: ^7.0.0
   intl: ^0.20.2
+  flutter_secure_storage: ^10.0.0
+  fl_chart: ^1.1.1
+  file_picker: ^10.3.10
+  share_plus: ^12.0.1
+  path_provider: ^2.1.5
+
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/images/logo.png
+  android_12:
+    image: assets/images/logo.png
+  web: false
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +65,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_native_splash: ^2.4.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

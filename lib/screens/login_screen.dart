@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../utils/ui_utils.dart';
+import 'dashboard_screen.dart';
+import 'doctor_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -34,11 +37,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
 
   Future<void> _submit() async {
     if (_emailCtrl.text.isEmpty || _passCtrl.text.isEmpty) {
-      _snack('Please fill email and password');
+      UiUtils.showSnackBar(context, 'Please fill email and password', isError: true);
       return;
     }
     if (!_isLogin && (_nameCtrl.text.isEmpty || _ageCtrl.text.isEmpty)) {
-      _snack('Please fill all fields');
+      UiUtils.showSnackBar(context, 'Please fill all fields', isError: true);
       return;
     }
 
@@ -53,14 +56,21 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           password: _passCtrl.text.trim(), age: int.parse(_ageCtrl.text.trim()), role: _role,
         );
       }
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => 
+            auth.role == 'doctor' ? const DoctorDashboardScreen() : const DashboardScreen()
+          ),
+        );
+      }
     } catch (e) {
-      _snack('$e');
+      if (mounted) UiUtils.showError(context, e);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  void _snack(String msg) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg), backgroundColor: Colors.red.shade400));
+
 
   @override
   Widget build(BuildContext context) {

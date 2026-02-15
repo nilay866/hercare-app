@@ -2,12 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/health_log_provider.dart';
+import '../providers/theme_provider.dart';
+import '../utils/ui_utils.dart';
 import '../widgets/stat_card.dart';
 import 'add_health_log_screen.dart';
 import 'health_history_screen.dart';
 import 'reminders_screen.dart';
 import 'chat_screen.dart';
 import 'symptom_checker_screen.dart';
+import 'pregnancy_profile_screen.dart';
+import 'medical_reports_screen.dart';
+import 'medication_screen.dart';
+import 'diet_plan_screen.dart';
+import 'emergency_screen.dart';
+import 'my_doctors_screen.dart';
+import 'link_records_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -51,6 +60,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('HerCare'),
         actions: [
+          Consumer<ThemeProvider>(
+            builder: (_, theme, __) => IconButton(
+              icon: Icon(theme.themeMode == ThemeMode.dark ? Icons.light_mode : Icons.dark_mode),
+              onPressed: () => theme.toggleTheme(theme.themeMode != ThemeMode.dark),
+              tooltip: 'Toggle Theme',
+            ),
+          ),
           IconButton(icon: const Icon(Icons.logout), onPressed: () => auth.logout(), tooltip: 'Logout'),
         ],
       ),
@@ -62,7 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             // Greeting
-            Text('Hello, ${auth.userName ?? "User"} 👋', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF2D2D2D))),
+            Text('Hello, ${auth.userName ?? "User"} 👋', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text('How are you feeling today?', style: TextStyle(fontSize: 15, color: Colors.grey.shade600)),
             const SizedBox(height: 20),
@@ -89,10 +105,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Expanded(child: Text('${logProv.pendingCount} log(s) waiting to sync', style: const TextStyle(color: Colors.orange))),
                     TextButton(onPressed: () async {
                       final synced = await logProv.syncPending(auth.token!);
-                      if (mounted && synced > 0) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('✅ Synced $synced log(s)'), backgroundColor: Colors.green));
-                        _loadData();
-                      }
+                        if (mounted && synced > 0) {
+                          UiUtils.showSnackBar(context, '✅ Synced $synced log(s)');
+                          _loadData();
+                        }
                     }, child: const Text('Sync', style: TextStyle(color: Colors.orange))),
                   ]),
                 ),
@@ -112,11 +128,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ]),
                     const Divider(height: 20),
                     Row(children: [
-                      _chip('📅 ${logProv.lastLog!.logDate}'),
+                      _chip(context, '📅 ${logProv.lastLog!.logDate}'),
                       const SizedBox(width: 8),
-                      _chip('😊 ${logProv.lastLog!.mood}'),
+                      _chip(context, '😊 ${logProv.lastLog!.mood}'),
                       const SizedBox(width: 8),
-                      _chip('💉 Pain: ${logProv.lastLog!.painLevel}'),
+                      _chip(context, '💉 Pain: ${logProv.lastLog!.painLevel}'),
                     ]),
                   ]),
                 ),
@@ -141,7 +157,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
 
-            // Action cards
+            // Pregnancy Care Section
+            const SizedBox(height: 24),
+            const Text('🤰 Pregnancy Care', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 12),
+            _ActionCard(icon: Icons.pregnant_woman, title: 'Pregnancy Profile', subtitle: 'Track your pregnancy journey', color: const Color(0xFFE91E8C), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PregnancyProfileScreen()))),
+            const SizedBox(height: 10),
+            _ActionCard(icon: Icons.description, title: 'Medical Reports', subtitle: 'View & upload test reports', color: const Color(0xFF7C4DFF), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MedicalReportsScreen()))),
+            const SizedBox(height: 10),
+            _ActionCard(icon: Icons.medication, title: 'Medications', subtitle: 'Track prescribed medicines', color: const Color(0xFF00BCD4), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MedicationScreen()))),
+            const SizedBox(height: 10),
+            _ActionCard(icon: Icons.restaurant_menu, title: 'Diet Plan', subtitle: 'Your nutrition plan', color: const Color(0xFF4CAF50), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DietPlanScreen()))),
+            const SizedBox(height: 10),
+            _ActionCard(icon: Icons.emergency, title: 'Emergency SOS', subtitle: 'Instant doctor consultation', color: const Color(0xFFE53935), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const EmergencyScreen()))),
+
+            // Quick Actions
             const SizedBox(height: 24),
             const Text('Quick Actions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             const SizedBox(height: 12),
@@ -157,9 +187,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 10),
             _ActionCard(icon: Icons.alarm, title: 'Reminders', subtitle: 'Period, meds & appointments', color: Colors.orange, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RemindersScreen()))),
             const SizedBox(height: 10),
+            _ActionCard(icon: Icons.people, title: 'My Doctors', subtitle: 'Manage access & permissions', color: Colors.blue, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MyDoctorsScreen()))),
+            const SizedBox(height: 10),
             _ActionCard(icon: Icons.chat_bubble_outline, title: 'Doctor Chat', subtitle: 'Talk to a healthcare advisor', color: Colors.teal, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatScreen()))),
             const SizedBox(height: 10),
             _ActionCard(icon: Icons.health_and_safety, title: 'Symptom Checker', subtitle: 'AI-powered health analysis', color: Colors.deepPurple, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SymptomCheckerScreen()))),
+            const SizedBox(height: 10),
+            _ActionCard(icon: Icons.link, title: 'Link Records', subtitle: 'Import history from doctor', color: Colors.indigo, onTap: () async {
+               final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => const LinkRecordsScreen()));
+               if (result == true) _loadData();
+            }),
             const SizedBox(height: 24),
           ]),
         ),
@@ -167,9 +204,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _chip(String text) => Container(
+  Widget _chip(BuildContext context, String text) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-    decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(20)),
+    decoration: BoxDecoration(
+      color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade100,
+      borderRadius: BorderRadius.circular(20),
+    ),
     child: Text(text, style: const TextStyle(fontSize: 12)),
   );
 
@@ -186,7 +226,11 @@ class _ActionCard extends StatelessWidget {
       child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(16), child: Padding(padding: const EdgeInsets.all(16), child: Row(children: [
         Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: color, size: 24)),
         const SizedBox(width: 14),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)), const SizedBox(height: 2), Text(subtitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade600))])),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 2),
+          Text(subtitle, style: TextStyle(fontSize: 13, color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey.shade600))
+        ])),
         Icon(Icons.arrow_forward_ios, color: Colors.grey.shade400, size: 16),
       ]))),
     );

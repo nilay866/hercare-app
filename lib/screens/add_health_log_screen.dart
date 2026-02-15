@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/health_log_provider.dart';
+import '../utils/ui_utils.dart';
 
 class AddHealthLogScreen extends StatefulWidget {
   const AddHealthLogScreen({super.key});
@@ -32,11 +33,11 @@ class _AddHealthLogScreenState extends State<AddHealthLogScreen> {
       }, auth.token!);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Health log saved!'), backgroundColor: Colors.green));
+        UiUtils.showSnackBar(context, '✅ Health log saved!');
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e'), backgroundColor: Colors.red));
+      if (mounted) UiUtils.showError(context, e);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
