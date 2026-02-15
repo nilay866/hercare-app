@@ -2,10 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // Production URL
-  // static const String baseUrl = 'http://ec2-52-66-232-144.ap-south-1.compute.amazonaws.com';
-  // Local Development
-  static const String baseUrl = 'http://localhost:8000';
+  // Production URL (Vercel)
+  static const String baseUrl = 'https://hercare-backend.vercel.app';
 
   // ─── Auth headers ───
   static Map<String, String> _headers(String token) => {
