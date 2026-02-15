@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // Production URL (AWS)
-  static const String baseUrl = 'http://ec2-3-110-146-141.ap-south-1.compute.amazonaws.com';
+  // static const String baseUrl = 'http://127.0.0.1:8000'; // Localhost
+  static const String baseUrl = 'https://hercare-backend.onrender.com'; // Render (HTTPS)
+  // static const String baseUrl = 'http://ec2-13-203-19-225.ap-south-1.compute.amazonaws.com'; // AWS EC2 (HTTP)
 
   // ─── Auth headers ───
   static Map<String, String> _headers(String token) => {

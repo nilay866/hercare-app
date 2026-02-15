@@ -106,7 +106,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> with Sing
                 value: isShadowRecord,
                 onChanged: (val) {
                   setState(() {
-                    isShadowRecord = val!;
+                    isShadowRecord = val ?? false;
                     if (isShadowRecord) {
                       emailController.clear();
                       passwordController.clear();
@@ -127,6 +127,9 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> with Sing
                   setState(() => isSubmitting = true);
                   try {
                     final auth = Provider.of<AuthProvider>(context, listen: false);
+                    if (auth.token == null) {
+                      throw Exception("Authentication token missing. Please login again.");
+                    }
                     final result = await ApiService.registerPatientByDoctor(
                       name: nameController.text, 
                       email: isShadowRecord ? null : emailController.text,
@@ -134,6 +137,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> with Sing
                       age: int.tryParse(ageController.text) ?? 25,
                       token: auth.token!,
                     );
+                    if (!context.mounted) return;
                     Navigator.pop(context); // Close Register Dialog
                     _loadData(); // Refresh list
 
@@ -142,6 +146,14 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> with Sing
                     _showSuccessDialog(result, nameController.text, emailController.text, passwordController.text, isShadowRecord);
 
                   } catch (e) {
+                     if (context.mounted) {
+                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                     }
+                     if (mounted) {
+                       setState(() => isSubmitting = false);
+                     }
+                  }
+                },
                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
                      setState(() => isSubmitting = false);
                   }
