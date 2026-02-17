@@ -37,7 +37,6 @@ class NotificationProvider extends ChangeNotifier {
     try {
       _notifications = await _service.getNotifications(
         limit: limit,
-        offset: offset,
       );
       await getUnreadCount();
       _error = null;
@@ -62,7 +61,8 @@ class NotificationProvider extends ChangeNotifier {
   // Mark as read
   Future<bool> markAsRead(String notificationId) async {
     try {
-      final success = await _service.markAsRead(notificationId);
+      await _service.markAsRead(notificationId);
+      final success = true;
       
       if (success) {
         final index = _notifications.indexWhere((n) => n.id == notificationId);
@@ -88,7 +88,8 @@ class NotificationProvider extends ChangeNotifier {
   // Mark all as read
   Future<bool> markAllAsRead() async {
     try {
-      final success = await _service.markAllAsRead();
+      await _service.markAllAsRead();
+      final success = true;
       
       if (success) {
         for (int i = 0; i < _notifications.length; i++) {
@@ -112,7 +113,8 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final success = await _service.deleteNotification(notificationId);
+      await _service.deleteNotification(notificationId);
+      final success = true;
       
       if (success) {
         _notifications.removeWhere((n) => n.id == notificationId);
@@ -138,7 +140,12 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final updated = await _service.updateNotificationPreferences(preferences);
+      await _service.updateNotificationPreferences(
+        emailEnabled: preferences['email'] ?? false,
+        smsEnabled: preferences['sms'] ?? false,
+        pushEnabled: preferences['push'] ?? false,
+      );
+      final updated = true;
       
       if (updated) {
         _notificationPreferences = preferences;

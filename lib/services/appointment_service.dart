@@ -1,14 +1,14 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'api_service.dart';
+import '../services/token_storage.dart';
 import '../models/phase2_models.dart';
 
 class AppointmentService {
-  static const String baseUrl = 'http://localhost:8000';
-  final _storage = const FlutterSecureStorage();
+  static const String baseUrl = '${ApiService.baseUrl}/api/v1';
 
   Future<String?> _getToken() async {
-    return await _storage.read(key: 'auth_token');
+    return await TokenStorage.read('token');
   }
 
   Future<List<Appointment>> getMyAppointments() async {

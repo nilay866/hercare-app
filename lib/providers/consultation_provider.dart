@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'telemedicine_service.dart';
+import '../services/telemedicine_service.dart';
 import '../models/phase4_models.dart';
 
 /// Provider for managing consultations

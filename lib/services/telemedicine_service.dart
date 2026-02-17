@@ -1,23 +1,21 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'phase4_models.dart';
+import 'api_service.dart';
+import '../services/token_storage.dart';
+import '../models/phase4_models.dart';
 
 /// Service for telemedicine and messaging operations
 class TelemedicineService {
   final String baseUrl;
   final http.Client httpClient;
-  final FlutterSecureStorage secureStorage;
 
   TelemedicineService({
-    this.baseUrl = 'http://localhost:8000/api/v1',
+    this.baseUrl = '${ApiService.baseUrl}/api/v1',
     http.Client? httpClient,
-    FlutterSecureStorage? secureStorage,
-  })  : httpClient = httpClient ?? http.Client(),
-        secureStorage = secureStorage ?? const FlutterSecureStorage();
+  })  : httpClient = httpClient ?? http.Client();
 
   Future<String?> _getToken() async {
-    return await secureStorage.read(key: 'auth_token');
+    return await TokenStorage.read('token');
   }
 
   Map<String, String> _getHeaders() {

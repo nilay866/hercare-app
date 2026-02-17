@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../models/phase2_models.dart';
-import '../providers/appointment_provider.dart';
+import '../../models/phase2_models.dart';
+import '../../providers/appointment_provider.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
   final String? doctorId;
@@ -93,14 +93,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
 
     final appointmentProvider = context.read<AppointmentProvider>();
     
-    final success = await appointmentProvider.bookAppointment(
+    final result = await appointmentProvider.bookAppointment(
       doctorId: _selectedDoctor!,
       appointmentDate: appointmentDateTime,
       appointmentType: _appointmentType,
-      reason: _reasonController.text.isNotEmpty ? _reasonController.text : null,
+      notes: _reasonController.text.isNotEmpty ? _reasonController.text : null,
     );
 
-    if (success) {
+    if (result != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Appointment booked successfully')),
       );

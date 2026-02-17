@@ -2,9 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // static const String baseUrl = 'http://127.0.0.1:8000'; // Localhost
-  static const String baseUrl = 'https://hercare-backend.onrender.com'; // Render (HTTPS)
-  // static const String baseUrl = 'http://ec2-13-203-19-225.ap-south-1.compute.amazonaws.com'; // AWS EC2 (HTTP)
+  static const String _defaultBaseUrl =
+      'http://ec2-43-204-138-153.ap-south-1.compute.amazonaws.com';
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: _defaultBaseUrl,
+  );
 
   // ─── Auth headers ───
   static Map<String, String> _headers(String token) => {
@@ -34,43 +37,41 @@ class ApiService {
         'role': role,
       }),
     );
-    if (resp.statusCode == 200 || resp.statusCode == 201) return jsonDecode(resp.body);
+    if (resp.statusCode == 200 || resp.statusCode == 201) {
+      return jsonDecode(resp.body);
+    }
     final err = jsonDecode(resp.body);
     throw Exception(err['detail'] ?? 'Registration failed');
   }
 
   static Future<Map<String, dynamic>> registerPatientByDoctor({
     required String name,
-    String? email,
-    String? password,
     required int age,
     required String token,
   }) async {
     final resp = await http.post(
       Uri.parse('$baseUrl/register-patient'),
       headers: _headers(token),
-      body: jsonEncode({
-        'name': name,
-        'age': age,
-        if (email != null) 'email': email,
-        if (password != null) 'password': password,
-      }),
+      body: jsonEncode({'name': name, 'age': age}),
     );
     // Parse response
     if (resp.statusCode == 200) {
       return jsonDecode(resp.body);
     } else {
-        throw Exception(jsonDecode(resp.body)['detail'] ?? 'Registration failed');
+      throw Exception(jsonDecode(resp.body)['detail'] ?? 'Registration failed');
     }
   }
 
-  static Future<void> linkRecords({required String code, required String token}) async {
+  static Future<void> linkRecords({
+    required String code,
+    required String token,
+  }) async {
     final resp = await http.post(
       Uri.parse('$baseUrl/patients/link?share_code=$code'),
       headers: _headers(token),
     );
     if (resp.statusCode != 200) {
-        throw Exception(jsonDecode(resp.body)['detail'] ?? 'Linking failed');
+      throw Exception(jsonDecode(resp.body)['detail'] ?? 'Linking failed');
     }
   }
 
@@ -81,10 +82,7 @@ class ApiService {
     final resp = await http.post(
       Uri.parse('$baseUrl/api/v1/auth/login'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': email,
-        'password': password,
-      }),
+      body: jsonEncode({'email': email, 'password': password}),
     );
     if (resp.statusCode == 200) return jsonDecode(resp.body);
     final err = jsonDecode(resp.body);
@@ -313,11 +311,12 @@ class ApiService {
   static Future<List<dynamic>> getReports({
     required String patientId,
     required String token,
+    bool includeData = false,
   }) async {
-    final resp = await http.get(
-      Uri.parse('$baseUrl/reports/$patientId'),
-      headers: _headers(token),
-    );
+    final uri = Uri.parse(
+      '$baseUrl/reports/$patientId',
+    ).replace(queryParameters: includeData ? {'include_data': 'true'} : null);
+    final resp = await http.get(uri, headers: _headers(token));
     if (resp.statusCode == 200) return jsonDecode(resp.body);
     return [];
   }
@@ -460,7 +459,9 @@ class ApiService {
     required String token,
   }) async {
     final resp = await http.put(
-      Uri.parse('$baseUrl/emergency/$emergencyId/accept?consultation_type=$consultationType'),
+      Uri.parse(
+        '$baseUrl/emergency/$emergencyId/accept?consultation_type=$consultationType',
+      ),
       headers: _headers(token),
     );
     if (resp.statusCode == 200) return jsonDecode(resp.body);
@@ -484,9 +485,7 @@ class ApiService {
     if (resp.statusCode != 200) throw Exception('Failed to update permissions');
   }
 
-  static Future<List<dynamic>> getMyDoctors({
-    required String token,
-  }) async {
+  static Future<List<dynamic>> getMyDoctors({required String token}) async {
     final resp = await http.get(
       Uri.parse('$baseUrl/my-doctors'),
       headers: _headers(token),
@@ -531,7 +530,9 @@ class ApiService {
       body: jsonEncode(body),
     );
     if (resp.statusCode == 200) return jsonDecode(resp.body);
-    throw Exception('Failed to create consultation');
+    throw Exception(
+      _extractError(resp, fallback: 'Failed to create consultation'),
+    );
   }
 
   static Future<List<dynamic>> getConsultations({
@@ -543,7 +544,9 @@ class ApiService {
       headers: _headers(token),
     );
     if (resp.statusCode == 200) return jsonDecode(resp.body);
-    return [];
+    throw Exception(
+      _extractError(resp, fallback: 'Failed to fetch consultations'),
+    );
   }
 
   static Future<void> payConsultation({
@@ -555,5 +558,21 @@ class ApiService {
       headers: _headers(token),
     );
     if (resp.statusCode != 200) throw Exception('Payment failed');
+  }
+
+  static String _extractError(http.Response resp, {required String fallback}) {
+    try {
+      final decoded = jsonDecode(resp.body);
+      if (decoded is Map<String, dynamic>) {
+        final detail = decoded['detail']?.toString();
+        if (detail != null && detail.isNotEmpty) {
+          return detail;
+        }
+      }
+    } catch (_) {}
+    if (resp.body.isNotEmpty) {
+      return '$fallback (${resp.statusCode}): ${resp.body}';
+    }
+    return '$fallback (${resp.statusCode})';
   }
 }

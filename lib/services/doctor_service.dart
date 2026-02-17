@@ -1,15 +1,15 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'api_service.dart';
+import '../services/token_storage.dart';
 import '../models/phase3_models.dart';
 
 class DoctorService {
-  static const String baseUrl = 'http://your-api-url.com/api/v1/doctor';
-  final _storage = const FlutterSecureStorage();
+  static const String baseUrl = '${ApiService.baseUrl}/api/v1/doctor';
   late String _token;
 
   Future<void> _initToken() async {
-    _token = await _storage.read(key: 'auth_token') ?? '';
+    _token = await TokenStorage.read('token') ?? '';
   }
 
   Map<String, String> get _headers {

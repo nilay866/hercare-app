@@ -41,6 +41,15 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
+  <script>
+    window.addEventListener('error', function(event) {
+      var msg = event.message || event.error;
+      var div = document.createElement('div');
+      div.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; color: red; padding: 20px; z-index: 9999; font-family: monospace; overflow: auto;';
+      div.innerHTML = '<h1>Application Error</h1><pre>' + msg + '\n' + (event.filename || '') + ':' + (event.lineno || '') + '</pre>';
+      document.body.appendChild(div);
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

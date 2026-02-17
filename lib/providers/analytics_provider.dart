@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'analytics_service.dart';
+import '../services/analytics_service.dart';
 import '../models/phase5_models.dart';
 
 /// Provider for health analytics

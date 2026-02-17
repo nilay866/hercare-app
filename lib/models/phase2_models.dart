@@ -10,6 +10,8 @@ class Appointment {
   final String appointmentType; // consultation, followup, checkup
   final String? notes;
   final String? cancellationReason;
+  final String? reason;
+  final String? location;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -24,6 +26,8 @@ class Appointment {
     this.appointmentType = 'consultation',
     this.notes,
     this.cancellationReason,
+    this.reason,
+    this.location,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -40,6 +44,8 @@ class Appointment {
       appointmentType: json['appointment_type'] ?? 'consultation',
       notes: json['notes'],
       cancellationReason: json['cancellation_reason'],
+      reason: json['reason'],
+      location: json['location'],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
@@ -56,6 +62,8 @@ class Appointment {
       'appointment_type': appointmentType,
       'notes': notes,
       'cancellation_reason': cancellationReason,
+      'reason': reason,
+      'location': location,
     };
   }
 
@@ -70,6 +78,8 @@ class Appointment {
     String? appointmentType,
     String? notes,
     String? cancellationReason,
+    String? reason,
+    String? location,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -84,6 +94,8 @@ class Appointment {
       appointmentType: appointmentType ?? this.appointmentType,
       notes: notes ?? this.notes,
       cancellationReason: cancellationReason ?? this.cancellationReason,
+      reason: reason ?? this.reason,
+      location: location ?? this.location,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -102,8 +114,11 @@ class MedicalFile {
   final String? resourceId;
   final String uploadedBy;
   final bool isPublic;
+  final List<String> sharedWith;
   final DateTime createdAt;
   final DateTime? expiresAt;
+
+  DateTime get uploadedAt => createdAt;
 
   MedicalFile({
     required this.id,
@@ -116,6 +131,7 @@ class MedicalFile {
     this.resourceId,
     required this.uploadedBy,
     this.isPublic = false,
+    this.sharedWith = const [],
     required this.createdAt,
     this.expiresAt,
   });
@@ -132,6 +148,7 @@ class MedicalFile {
       resourceId: json['resource_id'],
       uploadedBy: json['uploaded_by'],
       isPublic: json['is_public'] ?? false,
+      sharedWith: (json['shared_with'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
       createdAt: DateTime.parse(json['created_at']),
       expiresAt: json['expires_at'] != null ? DateTime.parse(json['expires_at']) : null,
     );
@@ -149,9 +166,42 @@ class MedicalFile {
       'resource_id': resourceId,
       'uploaded_by': uploadedBy,
       'is_public': isPublic,
+      'shared_with': sharedWith,
       'created_at': createdAt.toIso8601String(),
       'expires_at': expiresAt?.toIso8601String(),
     };
+  }
+
+  MedicalFile copyWith({
+    String? id,
+    String? userId,
+    String? fileName,
+    String? fileType,
+    int? fileSize,
+    String? s3Url,
+    String? resourceType,
+    String? resourceId,
+    String? uploadedBy,
+    bool? isPublic,
+    List<String>? sharedWith,
+    DateTime? createdAt,
+    DateTime? expiresAt,
+  }) {
+    return MedicalFile(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      fileName: fileName ?? this.fileName,
+      fileType: fileType ?? this.fileType,
+      fileSize: fileSize ?? this.fileSize,
+      s3Url: s3Url ?? this.s3Url,
+      resourceType: resourceType ?? this.resourceType,
+      resourceId: resourceId ?? this.resourceId,
+      uploadedBy: uploadedBy ?? this.uploadedBy,
+      isPublic: isPublic ?? this.isPublic,
+      sharedWith: sharedWith ?? this.sharedWith,
+      createdAt: createdAt ?? this.createdAt,
+      expiresAt: expiresAt ?? this.expiresAt,
+    );
   }
 }
 
@@ -168,6 +218,8 @@ class AppNotification {
   final String? actionUrl;
   final Map<String, dynamic>? metadata;
   final DateTime createdAt;
+
+  String get type => notificationType;
 
   AppNotification({
     required this.id,

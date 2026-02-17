@@ -32,8 +32,11 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
       orElse: () => Appointment(
         id: widget.appointmentId,
         doctorId: '',
+        doctorName: 'Unknown',
         patientId: '',
         appointmentDate: DateTime.now(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
         status: 'pending',
         appointmentType: 'consultation',
       ),
